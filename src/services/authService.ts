@@ -1,7 +1,3 @@
-// Serviço de autenticação
-// Realiza a chamada da api para verificar se o usuário e senha estão corretos
-// Utiliza a instância de api criada em api.ts basic auth.
-
 import { createApi } from './api';
 
 export const login = async (loginUsuario: string, senha: string) => {
@@ -12,6 +8,7 @@ export const login = async (loginUsuario: string, senha: string) => {
   const api = createApi(loginUsuario, senha);
 
   try {
+    console.log('Fazendo login com:', codigoUsuario, senha);
     // Faz a requisição GET para verificar se o usuário e senha estão corretos
     const response = await api.get(`/api/v1/usuario/usuario/${codigoUsuario}`);
     console.log('Login realizado com sucesso', response.data);

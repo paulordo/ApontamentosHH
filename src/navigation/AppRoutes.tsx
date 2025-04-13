@@ -1,7 +1,3 @@
-// Configurações de rotas da aplicação
-// Define a navegação principal entre as telas do app utilizando o react navigation.
-// Inclui as rotas para Login e Home, alem de tipar as rotas com RootStackParamList.
-
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from '../screens/Login';
@@ -21,7 +17,7 @@ export default function AppRoutes() {
     // Define a transição entre rotas do aplicativo
     <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="Home" component={Home} />
+      <Stack.Screen name="Home" component={Home}/>
     </Stack.Navigator>
   );
 }

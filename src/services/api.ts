@@ -5,18 +5,22 @@
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Buffer } from 'buffer';
 
 // cria a conexão com a api usando login e senha (criptografada com MD5)
 export const createApi = (usuario: string, senha: string) => {
   // Criptografa a senha com MD5
   const senhaMd5 = CryptoJS.MD5(senha).toString();
 
+  const Base64 = Buffer.from(`${usuario}:${senhaMd5}`).toString('base64');
+
   // Cria e retorna uma instância do Axios usando a base da URL da api e os dados da na autenticação com basic auth
   return axios.create({
     baseURL: 'http://191.242.244.192:9066',
-    auth: {
-      username: usuario,
-      password: senhaMd5,
+    headers: {
+      Authorization: `Basic ${Base64}`,
+      'Content-Type': 'application/json',
+      'Conexion': 'close',
     },
   });
 };

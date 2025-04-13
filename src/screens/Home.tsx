@@ -1,64 +1,106 @@
-
-// Tela Home
-// Tela acessada após o login. Usa a instância da API autenticada via getApi()
-// para buscar dados protegidos do servidor e exibir ao usuário.
-
-import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, StyleSheet, Alert } from 'react-native';
+import React, { use, useEffect, useState } from 'react';
+import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { getApi } from '../services/api';
+import { Picker } from '@react-native-picker/picker';
+import { Card } from 'react-native-paper';
+import CardFuncionario from '../components/CardFuncionario';
 
-const Home = () => {
-  // Variável para armazenar os dados recebidos da api
-  const [dados, setDados] = useState<any>(null);
+interface Equipe {
+  // Define a estrutura dos dados de uma equipe
+  EQM_CODIGO: number;
+  EQM_DESCRICAO: string;
+  PESSOAS: Pessoa[];
+}
 
-  // Função para carregar os dados da api quando o componente é carregado
+interface Pessoa {
+  // Define a estrutura dos dados de uma pessoa
+  PEQ_CODIGO: number;
+  PES_RAZAO: string;
+  PEQ_EQUIPE: number;
+}
+
+export default function Home() {
+  // definição de estados para as equipes e equipe selecionada
+  const [equipes, setEquipes] = useState<Equipe[]>([]); 
+  const [equipeSelecionada, setEquipeSelecionada] = useState<number | null>(null);
+
   useEffect(() => {
-    console.log('Tela Home carregada');
-    // Função que busca os dados para a api
+    // Função para carregar os dados das equipes
     const carregarDados = async () => {
       try {
         console.log('Carregando dados...');
-        
-        const api = await getApi(); // Pega a instância da API já com autenticação
-        const response = await api.get('/api/v1/pcm/equipemanutencao/9'); // Faz a requisição para a API
-
-        setDados(response.data); // Armazena os dados recebidos no estado
-        console.log('Dados recebidos:', response.data); // Loga os dados recebidos
-        
+        const api = await getApi();
+        const response = await api.get('/api/v1/pcm/equipemanutencao/0/0/0/0');
+        setEquipes(response.data);
+        console.log('Dados recebidos:', response.data);
       } catch (error) {
         Alert.alert('Erro', 'Falha ao carregar dados');
-        console.log('Erro ao carregar dados:', error); // Loga o erro
+        console.log('Erro ao carregar dados:', error);
       }
     };
 
-
     carregarDados();
-  }, []); // [] significa que o efeito só roda uma vez quando o componente é carregado
+  }, []);
+
+  const equipe = equipes.find(e => e.EQM_CODIGO === equipeSelecionada);
+  // Verifica se a equipe selecionada existe na lista de equipes
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Tela Home - Equipe de Manutenção</Text>
-      {dados ? (
-        <Text style={styles.text}>{JSON.stringify(dados, null, 2)}</Text>
-      ) : (
-        <Text>Carregando dados...</Text>
-      )}
+    <ScrollView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <View style={styles.pickerWrapper}>
+          <Picker
+            selectedValue={equipeSelecionada}
+            onValueChange={(itemValue) => setEquipeSelecionada(itemValue)}
+            style={styles.picker}
+            dropdownIconColor="#555"
+          >
+            <Picker.Item label="Equipes" value={null} />
+            {equipes.map((equipe) => (
+              <Picker.Item
+                key={equipe.EQM_CODIGO}
+                label={equipe.EQM_DESCRICAO}
+                value={equipe.EQM_CODIGO}
+              />
+            ))}
+          </Picker>
+        </View>
+          <Card.Content>
+          {equipe && (
+            <CardFuncionario
+              nomeEquipe={equipe.EQM_DESCRICAO}
+              pessoas={equipe.PESSOAS}
+            />
+          )}
+          </Card.Content>
+      </View>
     </ScrollView>
-  );
-};
-export default Home;
+    );
+  }
+
 
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+    justifyContent: 'space-between',
   },
-  title: {
-    fontSize: 20,
+  label: {
+    marginBottom: 8,
     fontWeight: 'bold',
-    marginBottom: 10,
+    alignSelf: 'flex-start',
+    color: '#333',
   },
-  text: {
-    fontFamily: 'monospace',
-    fontSize: 12,
+  pickerWrapper: {
+    width: 160,
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    overflow: 'hidden'
+  },
+  picker: {
+    height: 50,
+    color: '#333',
   },
 });

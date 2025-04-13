@@ -1,8 +1,3 @@
-// Tela de Login
-// Responsável por capturar o usuário e senha digitados
-// realizar a autenticação via authbasic e redirecionar para a tela Home.
-// Também armazena os dados de login localmente com AsyncStorage.
-
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -26,6 +21,7 @@ const Login = () => {
       await login(usuario, senha);
 
       // Se der certo, armazena os dados no AsyncStoragea
+      console.log('Login realizado com sucesso');
       await AsyncStorage.setItem('usuario', usuario);
       await AsyncStorage.setItem('senha', senha);
 
@@ -34,6 +30,7 @@ const Login = () => {
     } catch (error: any) {
 
       // Se der erro, mostra um alerta com a mensagem de erro
+      console.log('Erro ao logar:', error.message);
       Alert.alert('Erro', error.message || 'Erro ao conectar com o servidor.');
     }
   };
@@ -58,17 +55,18 @@ const Login = () => {
 };
 
 
-export default Login; // Exporta o componente Login para ser usado em outras partes
+export default Login;
 
 // Estilização do componente
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, justifyContent: 'center' },
-  label: { fontWeight: 'bold' },
+  container: { flex: 1, padding: 20, justifyContent: 'center', alignItems: 'center', minWidth: 400},
+  label: { fontWeight: 'bold', fontSize: 20 },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 8,
     marginVertical: 10,
     borderRadius: 4,
+    minWidth: 300,
   },
 });
