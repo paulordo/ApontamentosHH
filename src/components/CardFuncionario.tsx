@@ -1,40 +1,100 @@
 import React from 'react';
-import { Text } from 'react-native';
-import { Card, Divider } from 'react-native-paper';
+import { View, ScrollView, Text, StyleSheet, ActivityIndicator } from 'react-native';
 
+// Define a interface para representar pessoa da equipe
 interface Pessoa {
-    // Define a estrutura dos dados de uma pessoa
-  PEQ_CODIGO: number;
-  PES_RAZAO: string;
+  PEQ_CODIGO: number; // Codigo do funcionário
+  PES_RAZAO: string;  // Nome do funcionário
 }
 
+// Define as propriedades esperadas pelo componente
 interface Props {
-    // Define as propriedades esperadas pelo componente
-  nomeEquipe: string;
-  pessoas: Pessoa[];
+  nomeEquipe: string;      // Nome da equipe
+  pessoas: Pessoa[];       // Lista de funcionários
+  carregando: boolean;     // Indica se os dados ainda estão sendo carregados
 }
 
-const EquipeFuncionariosCard: React.FC<Props> = ({ nomeEquipe, pessoas }) => {
-    // Verifica se o nome da equipe e a lista de pessoas estão definidos
+// Componente funcional que exibe os funcionários de uma equipe
+const EquipeFuncionariosCard: React.FC<Props> = ({ nomeEquipe, pessoas, carregando }) => {
+
+  // Se estiver carregando, mostra um loading
+  if (carregando) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6200ee" />
+        <Text style={styles.loadingText}>Carregando equipe...</Text>
+      </View>
+    );
+  }
+
+  // Exibe a lista de funcionários, ou uma mensagem se não houver dados
   return (
-    <Card style={{ marginTop: 20, padding: 10, maxWidth: 450, minWidth: 400 }}>
-      <Card.Title title={`${nomeEquipe}`} />
-      <Card.Content>
-        {pessoas.length > 0 ? (
-          pessoas.map((pessoa, index) => (
-            <React.Fragment key={pessoa.PEQ_CODIGO}>
-              <Text style={{ paddingVertical: 6, fontSize: 20 }}>
-                {pessoa.PES_RAZAO}
-              </Text>
-              {index < pessoas.length - 1 && <Divider />}
-            </React.Fragment>
-          ))
-        ) : (
-          <Text>Nenhum funcionário encontrado.</Text>
-        )}
-      </Card.Content>
-    </Card>
+    <ScrollView style={styles.container}>
+      <Text style={styles.titulo}>Funcionários {nomeEquipe}</Text>
+
+      {pessoas.length > 0 ? (
+        // Renderiza cada funcionário dentro de um card
+        pessoas.map((pessoa, index) => (
+          <View key={pessoa.PEQ_CODIGO} style={styles.card}>
+            <Text style={styles.texto}>{pessoa.PES_RAZAO}</Text>
+          </View>
+        ))
+      ) : (
+        // Caso a lista esteja vazia
+        <Text style={styles.semDados}>Nenhum funcionário encontrado.</Text>
+      )}
+    </ScrollView>
   );
 };
 
+// Estilização
+const styles = StyleSheet.create({
+  container: {
+    borderWidth: 2,
+    borderColor: 'black',
+    padding: 10,
+    marginTop: 20,
+    borderRadius: 8,
+    backgroundColor: '#f9f9f9',
+    maxWidth: 450,
+    minWidth: 400,
+    maxHeight: 600,
+    alignSelf: 'flex-start',
+  },
+  titulo: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'black',
+    alignSelf: 'center',
+    marginBottom: 10,
+    textTransform: 'capitalize',
+  },
+  card: {
+    backgroundColor: '#999',
+    borderColor: 'black',
+    borderWidth: 2,
+    borderRadius: 6,
+    padding: 10,
+    marginBottom: 10,
+  },
+  texto: {
+    color: '#fff',
+    fontSize: 18,
+  },
+  semDados: {
+    textAlign: 'center',
+    color: '#333',
+    marginTop: 10,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#333',
+  },
+});
+
+// Exporta para ser utilizado em outros arquivos
 export default EquipeFuncionariosCard;

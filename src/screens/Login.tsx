@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { login } from '../services/authService';
@@ -12,12 +12,15 @@ const Login = () => {
   // Variaveis para guardar o que o usuario digita
   const [usuario, setUsuario] = useState('');
   const [senha, setSenha] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   // Função chamada para autenticar o usuario ao apertar botão "entrar"
   const autenticar = async () => {
+    setLoading(true);
     try {
       // Tenta logar com os dados digitados
+      console.log('Autenticando...')
       await login(usuario, senha);
 
       // Se der certo, armazena os dados no AsyncStoragea
@@ -28,10 +31,9 @@ const Login = () => {
       // Navega para a tela Home
       navigation.navigate('Home');
     } catch (error: any) {
-
-      // Se der erro, mostra um alerta com a mensagem de erro
       console.log('Erro ao logar:', error.message);
-      Alert.alert('Erro', error.message || 'Erro ao conectar com o servidor.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,7 +51,11 @@ const Login = () => {
         secureTextEntry
       />
 
-      <Button title="Entrar" onPress={autenticar} />
+      {loading ? (
+        <ActivityIndicator size="large" color="#6200ee" style={{marginTop:20}} />
+      ) : ( 
+        <Button title="Entrar" onPress={autenticar} /> 
+      )}
     </View>
   );
 };
