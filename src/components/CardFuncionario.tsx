@@ -1,4 +1,6 @@
 import React from 'react';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { TouchableOpacity } from 'react-native';
 import { View, ScrollView, Text, StyleSheet, ActivityIndicator } from 'react-native';
 
 // Define a interface para representar pessoa da equipe
@@ -12,10 +14,15 @@ interface Props {
   nomeEquipe: string;      // Nome da equipe
   pessoas: Pessoa[];       // Lista de funcionários
   carregando: boolean;     // Indica se os dados ainda estão sendo carregados
+
+  funcionarioSelecionado: number | null;
+  onSelecionarFuncionario: (idFuncionario: number) => void;
+
+  onAbrirApontamentos: (idFuncionario: number, nomeFuncionario: string) => void;
 }
 
 // Componente funcional que exibe os funcionários de uma equipe
-const EquipeFuncionariosCard: React.FC<Props> = ({ nomeEquipe, pessoas, carregando }) => {
+const CardFuncionario: React.FC<Props> = ({ nomeEquipe, pessoas, carregando, funcionarioSelecionado, onSelecionarFuncionario, onAbrirApontamentos }) => {
 
   // Se estiver carregando, mostra um loading
   if (carregando) {
@@ -34,10 +41,22 @@ const EquipeFuncionariosCard: React.FC<Props> = ({ nomeEquipe, pessoas, carregan
 
       {pessoas.length > 0 ? (
         // Renderiza cada funcionário dentro de um card
-        pessoas.map((pessoa, index) => (
-          <View key={pessoa.PEQ_CODIGO} style={styles.card}>
+        pessoas.map((pessoa) => (
+        <View
+          key={pessoa.PEQ_CODIGO}
+          style={[
+            styles.card,
+            funcionarioSelecionado === pessoa.PEQ_CODIGO && styles.cardSelecionado
+          ]}
+        >
+          <TouchableOpacity onPress={() => onSelecionarFuncionario(pessoa.PEQ_CODIGO)} style={styles.cardHeader}>
             <Text style={styles.texto}>{pessoa.PES_RAZAO}</Text>
-          </View>
+            <TouchableOpacity onPress={() => onAbrirApontamentos(pessoa.PEQ_CODIGO, pessoa.PES_RAZAO)}>
+              <Icon name="eye" size={22} color="#fff" />
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </View>
+
         ))
       ) : (
         // Caso a lista esteja vazia
@@ -94,7 +113,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: '#333',
   },
+  cardSelecionado: {
+    backgroundColor: '#4caf50',
+    borderColor: '#2e7d32',
+  },
+  cardHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+},
+
 });
 
 // Exporta para ser utilizado em outros arquivos
-export default EquipeFuncionariosCard;
+export default CardFuncionario;
