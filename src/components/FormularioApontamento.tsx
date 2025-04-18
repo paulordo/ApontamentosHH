@@ -3,14 +3,17 @@ import { Alert, View } from 'react-native';
 import { Button, Text, TextInput } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type Props = {
+export type Apontamento = {
   funcionarioId: number;
   funcionarioNome: string;
   ordemId: number | string;
+  data: string;
+  horaInicio: string;
+  horaFim: string;
   onApontamentoRegistrado: () => void;
 };
 
-export default function FormularioApontamento({ funcionarioId, funcionarioNome, ordemId, onApontamentoRegistrado }: Props) {
+export default function FormularioApontamento({ funcionarioId, funcionarioNome, ordemId, onApontamentoRegistrado }: Apontamento) {
   // Estados para armazenar data e horários
   const [data, setData] = useState('');
   const [horaInicio, setHoraInicio] = useState('');

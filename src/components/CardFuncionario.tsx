@@ -52,7 +52,7 @@ const CardFuncionario: React.FC<Props> = ({ nomeEquipe, pessoas, carregando, fun
           <TouchableOpacity onPress={() => onSelecionarFuncionario(pessoa.PEQ_CODIGO)} style={styles.cardHeader}>
             <Text style={styles.texto}>{pessoa.PES_RAZAO}</Text>
             <TouchableOpacity onPress={() => onAbrirApontamentos(pessoa.PEQ_CODIGO, pessoa.PES_RAZAO)}>
-              <Icon name="eye" size={22} color="#fff" />
+              <Icon name='eye' size={30} color="#fff" />
             </TouchableOpacity>
           </TouchableOpacity>
         </View>

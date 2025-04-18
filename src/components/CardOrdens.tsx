@@ -3,9 +3,16 @@ import { TouchableOpacity } from 'react-native'; // adicione essa importação
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 
 // Define a estrutura dos dados de uma ordem de produção
-interface Ordem {
-  ODP_NRPREORDEM: string; // Número da pré-ordem
+export interface Ordem {
+  ODP_CODIGO: number;
+  ODP_NRPREORDEM: string;
   ODP_PRODUTO: string;
+  ODP_DATA: number;
+  ODP_USUARIO: string;
+  ODP_HIERARQUIA: string;
+  ODP_QTDPREVISTA: number;
+  ODP_QTDADICIONADA: number;
+  ODP_QTDREMOVIDA: number;
 }
 
 // Define as propriedades esperadas pelo componente
@@ -87,15 +94,15 @@ const styles = StyleSheet.create({
       <Text style={styles.titulo}>ordens</Text>
   
       {ordens.length > 0 ? (
-        ordens.map((ordem, index) => {
-          const selecionado = ordem.ODP_NRPREORDEM === ordemSelecionada;
+        ordens.map((ordem) => {
+          const selecionado = ordem.ODP_HIERARQUIA=== ordemSelecionada;
           return (
             <TouchableOpacity
-              key={index}
+              key={ordem.ODP_CODIGO}
               style={[styles.card, selecionado && styles.cardSelecionado]}
               onPress={() => onSelectOrdem(ordem)}
             >
-              <Text style={styles.texto}>OS: {ordem.ODP_NRPREORDEM}</Text>
+              <Text style={styles.texto}>OS: {ordem.ODP_HIERARQUIA}</Text>
             </TouchableOpacity>
           );
         })
