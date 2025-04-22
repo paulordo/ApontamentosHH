@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Apontamento } from '../components/FormularioApontamento';
 import type { Ordem } from '../components/CardOrdens';
  
-// Tipos para equipes, pessoas e ordens
+// Types para equipes e pessoas
 interface Equipe {
   EQM_CODIGO: number;
   EQM_DESCRICAO: string;
@@ -25,103 +25,107 @@ interface Pessoa {
   PEQ_EQUIPE: number;
 }
 
-
 export default function Home() {
-  // Estados principais
-  const [funcionarioSelecionado, setFuncionarioSelecionado] = useState<number | null>(null);
-  const [ordemSelecionada, setOrdemSelecionada] = useState<string | null>(null);
-  const [equipes, setEquipes] = useState<Equipe[]>([]);
-  const [equipeSelecionada, setEquipeSelecionada] = useState<number | null>(null);
-  const [carregandoEquipes, setCarregandoEquipes] = useState(true);
-  const [carregandoOrdens, setCarregandoOrdens] = useState(true);
-  const [ordens, setOrdens] = useState<Ordem[]>([]);
-  const [modalVisivel, setModalVisivel] = useState(false);
-  const [apontamentosFuncionario, setApontamentosFuncionario] = useState<any[]>([]);
-  const [nomeFuncionarioSelecionado, setNomeFuncionarioSelecionado] = useState('');
-  const [horaFimEditando, setHoraFimEditando] = useState<string | null>(null);
-  const [apontamentoSendoEditado, setApontamentoSendoEditado] = useState<Apontamento | null>(null);
-  const intervaloRef = useRef<NodeJS.Timeout | null>(null);
-  
-  
-  // Carrega as equipes com retry até sucesso
-  useEffect(() => {
-    let intervalo: NodeJS.Timeout;
+// Estados de seleção
+const [funcionarioSelecionado, setFuncionarioSelecionado] = useState<number | null>(null);
+const [ordemSelecionada, setOrdemSelecionada] = useState<string | null>(null);
+const [equipeSelecionada, setEquipeSelecionada] = useState<number | null>(null);
+// Dados carregados
+const [equipes, setEquipes] = useState<Equipe[]>([]);
+const [ordens, setOrdens] = useState<Ordem[]>([]);
+// Estados de carregamento
+const [carregandoEquipes, setCarregandoEquipes] = useState(true);
+const [carregandoOrdens, setCarregandoOrdens] = useState(true);
+// Modal dos apontamentos
+const [modalVisivel, setModalVisivel] = useState(false);
+const [apontamentosFuncionario, setApontamentosFuncionario] = useState<Apontamento[]>([]);
+const [nomeFuncionarioSelecionado, setNomeFuncionarioSelecionado] = useState('');
+// Edição dos apontamentos
+const [horaFimEditando, setHoraFimEditando] = useState<string | null>(null);
+const [apontamentoSendoEditado, setApontamentoSendoEditado] = useState<Apontamento | null>(null);
+// Intervalo para atualziação
+const intervaloEquipesRef = useRef<NodeJS.Timeout | null>(null);
+const intervaloOrdensRef = useRef<NodeJS.Timeout | null>(null);
 
-    const carregarEquipes = async () => {
-      try {
-        setCarregandoEquipes(true);
-        const api = await getApi();
-        console.log(`[EQUIPES] URL completa: /api/v1/pcm/equipemanutencao/0/0/0/0`)
-        const response = await api.get(`/api/v1/pcm/equipemanutencao/0/0/0/0`);
+// Função para carregar as EQUIPES
+const carregarEquipes = async () => {
+  try {
+    setCarregandoEquipes(true);
+    const api = await getApi();
+    const response = await api.get(`/api/v1/pcm/equipemanutencao/0/0/0/0`);
 
-        setEquipes(response.data);
-        setCarregandoEquipes(false);
-        clearInterval(intervalo);
-        console.log('Dados recebidos Equipes:', response.data)
-      } catch (erro) {
-        console.log('Erro ao carregar equipes. Tentando novamente...');
-        if (axios.isAxiosError(erro)) {
-          console.log("Erro Axios:", erro.response?.data);
-        } else {
-          console.log("Erro desconhecido:", erro);
-        }
-      }
-    };
+      setEquipes(response.data);
+      setCarregandoEquipes(false);
+      console.log('Dados recebidos Equipes:', response.data);
 
+      if (intervaloEquipesRef.current) {
+        clearInterval(intervaloEquipesRef.current);
+        intervaloEquipesRef.current = null;
+    } else {
+      console.log('Nenhuma equipe encontrada.');
+    }
+  } catch (erro) {
+    console.log('Erro ao carregar equipes. Tentando novamente...');
+  } finally {
+    setCarregandoEquipes(false);
+  }
+};
+
+// Função para carregar as ORDENS
+const carregarOrdens = async () => {
+  try {
+    setCarregandoOrdens(true);
+    const api = await getApi();
+    const whereBase64 = btoa('ODP_STATUS;IN;A');
+    const response = await api.get(`/api/v1/pcp/ordensproducao/${whereBase64}/0/3/0`);
+
+    setOrdens(response.data);
+    setCarregandoOrdens(false);
+    console.log('Dados recebidos Ordens:', response.data);
+
+    if (intervaloOrdensRef.current) {
+      clearInterval(intervaloOrdensRef.current);
+      intervaloOrdensRef.current = null;
+    } else {
+      console.log('Nenhuma ordem encontrada.');
+    }
+  } catch (erro) {
+    console.log('Erro ao carregar ordens');
+    if (axios.isAxiosError(erro)) {
+      console.log('Erro Axios:', erro.response?.data || erro.message);
+    }
+  } finally {
+    setCarregandoOrdens(false);
+  }
+};
+
+// Carregar EQUIPES quando o componente for montado
+useEffect(() => {
     carregarEquipes();
-    intervalo = setInterval(carregarEquipes, 3000);
-    return () => clearInterval(intervalo);
-  }, []);
+    intervaloEquipesRef.current = setInterval(carregarEquipes, 4000);
+    console.log('Tentando carregar equipes...');
 
-  // Carrega as ordens com retry até sucesso
-  useEffect(() => {
-    const carregarOrdens = async () => {
-      try {
-        setCarregandoOrdens(true);
-        const api = await getApi();
-        const whereBase64 = btoa('ODP_STATUS;IN;A,P,E');
-        console.log(`[ORDENS] URL completa: /api/v1/pcp/ordensproducao/${whereBase64}/0/3/0`);
-        const response = await api.get(`/api/v1/pcp/ordensproducao/${whereBase64}/0/3/0`);
-  
-        if (Array.isArray(response.data) && response.data.length > 0) {
-          setOrdens(response.data);
-          console.log('Dados recebidos Ordens:', response.data);
-  
-          // Interrompe o intervalo assim que os dados forem recebidos
-          if (intervaloRef.current) {
-            clearInterval(intervaloRef.current);
-            intervaloRef.current = null;
-          }
-        } else {
-          console.log('Nenhuma ordem encontrada.');
-        }
-      } catch (erro) {
-        console.log('Erro ao carregar ordens');
-        if (axios.isAxiosError(erro)) {
-          console.log('Erro Axios:', erro.response?.data || erro.message);
-        } else if (erro instanceof Error) {
-          console.log('Mensagem:', erro.message);
-        } else {
-          console.log('Erro desconhecido:', JSON.stringify(erro));
-        }
-      } finally {
-        setCarregandoOrdens(false);
-      }
-    };
-  
-    // Chamada inicial
-    carregarOrdens();
-  
-    // Armazena o intervalo na ref
-    intervaloRef.current = setInterval(carregarOrdens, 5000);
-  
-    // Limpa no unmount do componente
-    return () => {
-      if (intervaloRef.current) {
-        clearInterval(intervaloRef.current);
-      }
-    };
-  }, []);
+  return () => {
+    if (intervaloEquipesRef.current) {
+      clearInterval(intervaloEquipesRef.current);
+      intervaloEquipesRef.current = null;
+      console.log('Intervalo limpo ao desmontar o componente.');
+    }
+  };
+}, []);
+
+// Carregar ORDENS quando o componente for montado
+useEffect(() => {
+  carregarOrdens();
+  intervaloOrdensRef.current = setInterval(carregarOrdens, 4000);
+
+  return () => {
+    if (intervaloOrdensRef.current) {
+      clearInterval(intervaloOrdensRef.current);
+      intervaloOrdensRef.current = null;
+    }
+  };
+}, []);
 
   // Recupera os dados da equipe selecionada
   const equipe = equipes.find(e => e.EQM_CODIGO === equipeSelecionada);
@@ -142,28 +146,36 @@ export default function Home() {
     console.log('Ordem selecionada:', ordem.ODP_HIERARQUIA);
   };
 
+  // Função para abrir os apontamentos de um funcionario
   const abrirApontamentos = async (idFuncionario: number, nomeFuncionario: string) => {
     try {
+      // Pega os dados salvos no AsyncStorage com a chave apontamentos
       const dados = await AsyncStorage.getItem('apontamentos');
+      // se tiver dados, transforma de JSON para uma lista de objetos
       const todosApontamentos = dados ? JSON.parse(dados) : [];
-  
+      // Filtra a lista para pegar só os apontamentos do funcionario com o id informado
       const filtrados = todosApontamentos.filter(
         (a: any) => a.funcionarioId === idFuncionario
       );
-  
+      // Salva esses apontamentos para mostrar na tela
       setApontamentosFuncionario(filtrados);
+      // salva o nome do funcionario selecionado
       setNomeFuncionarioSelecionado(nomeFuncionario);
+      // abre o modal que mostra os apontamentos na tela
       setModalVisivel(true);
     } catch (error) {
       console.error('Erro ao buscar apontamentos:', error);
     }
   };
 
+  // Função para excluir um apontamento especifico do AsyncStorage
   const handleExcluirApontamento = async (apontamento: Apontamento) => {
     try {
+      // recupera todos apontamentos que estão no AsyncStorage
       const dados = await AsyncStorage.getItem('apontamentos');
+      // converte os dados de string para objeto
       const todosApontamentos = dados ? JSON.parse(dados) : [];
-      
+      // filta os apontamentos
       const atualizados = todosApontamentos.filter((a: Apontamento) =>
         !(
           a.funcionarioId === apontamento.funcionarioId &&
@@ -173,19 +185,60 @@ export default function Home() {
           a.horaFim === apontamento.horaFim
         )
       );
-  
+      // salva os apontamentos atualizados
       await AsyncStorage.setItem('apontamentos', JSON.stringify(atualizados));
   
+      // filtra os apontamentos atualizados para mostrar apenas os do mesmo funcionario
       const atualizadosFuncionario = atualizados.filter(
         (a: any) => a.funcionarioId === apontamento.funcionarioId
       );
       
+      // atualiza o estado da lista de apontamentos do funcionario especifico
       setApontamentosFuncionario(atualizadosFuncionario);
   
       console.log('Apontamento excluído com sucesso:', apontamento);
     } catch (error) {
       console.error('Erro ao excluir apontamento:', error);
     }
+  };
+
+  // função de pausar apontamento
+  const pausarHora = async () => {
+    // Verifica se a horaFimEditando não é vazia ou inválida
+    if (!horaFimEditando || horaFimEditando.trim() === "") {
+      console.error("Hora inválida");
+      return;
+    }
+
+    // Verifica se o apontamento a ser editado realmente existe
+    if (!apontamentoSendoEditado) {
+      console.error("Apontamento não encontrado");
+      return;
+    }
+
+    // Atualiza o apontamento no array
+    const apontamentoAtualizado = apontamentosFuncionario.map((a) =>
+      a.ordemId === apontamentoSendoEditado.ordemId && a.funcionarioId === apontamentoSendoEditado.funcionarioId
+        ? { ...a, horaFim: horaFimEditando }
+        : a
+    );
+
+    // Atualiza o estado com os apontamentos modificados
+    setApontamentosFuncionario(apontamentoAtualizado);
+
+    try {
+      // Atualiza o AsyncStorage com os apontamentos modificados
+      await AsyncStorage.setItem("apontamentos", JSON.stringify(apontamentoAtualizado));
+    } catch (error) {
+      console.error("Erro ao salvar no AsyncStorage", error);
+    }
+
+    // Limpa o estado de edição e de horaFim
+    setHoraFimEditando(null);
+    setApontamentoSendoEditado(null);
+
+    // Mensagem de sucesso ou feedback de atualização
+    console.log("Apontamento atualizado com sucesso!");
   };
 
   return (
@@ -304,47 +357,31 @@ export default function Home() {
               {apontamentoSendoEditado?.ordemId === ap.ordemId &&
               apontamentoSendoEditado?.funcionarioId === ap.funcionarioId && (
                 <View>
-                  <TextInput
-                    label="Editar Hora Fim"
-                    value={horaFimEditando ?? undefined}
-                    onChangeText={(text) => {
-                      let onlyDigits = text.replace(/\D/g, "").slice(0, 4);
-                      if (onlyDigits.length >= 3) {
-                        onlyDigits = onlyDigits.replace(/(\d{2})(\d{1,2})/, "$1:$2");
-                      }
-                      setHoraFimEditando(onlyDigits);
-                    }}
-                    keyboardType="numeric"
-                    style={{ backgroundColor: "white", maxHeight: 50}}
-                    maxLength={5}
-                    placeholder="00:00"
-                    mode="outlined"
-                  />
-
-                  <Button
-                    labelStyle={{ color: 'black' }}
-                    mode="contained"
-                    onPress={() => {
-                      if (!horaFimEditando || horaFimEditando.trim() === "") {
-                        console.error("Hora inválida");
-                        return;
-                      }
-
-                      const apontamentoAtualizado = apontamentosFuncionario.map((a) =>
-                        a.ordemId === ap.ordemId && a.funcionarioId === ap.funcionarioId
-                          ? { ...a, horaFim: horaFimEditando }
-                          : a
-                      );
-
-                      setApontamentosFuncionario(apontamentoAtualizado);
-                      AsyncStorage.setItem("apontamentos", JSON.stringify(apontamentoAtualizado));
-                      setHoraFimEditando(null);
-                      setApontamentoSendoEditado(null);
-                    }}
-                    style={{ marginTop: 10, maxWidth: 150, maxHeight: 50, backgroundColor: 'yellow' }}
-                  >
-                    Pausar Hora
-                  </Button>
+                <TextInput
+                  label="Editar Hora Fim"
+                  value={horaFimEditando ?? undefined}
+                  onChangeText={(text) => {
+                    let onlyDigits = text.replace(/\D/g, "").slice(0, 4);
+                    if (onlyDigits.length >= 3) {
+                      onlyDigits = onlyDigits.replace(/(\d{2})(\d{1,2})/, "$1:$2");
+                    }
+                    setHoraFimEditando(onlyDigits);
+                  }}
+                  keyboardType="numeric"
+                  style={{ backgroundColor: "white", maxHeight: 50 }}
+                  maxLength={5}
+                  placeholder="00:00"
+                  mode="outlined"
+                />
+          
+                <Button
+                  labelStyle={{ color: 'black' }}
+                  mode="contained"
+                  onPress={pausarHora}
+                  style={{ marginTop: 10, maxWidth: 150, maxHeight: 50, backgroundColor: 'yellow' }}
+                >
+                  Pausar Hora
+                </Button>
                 </View>
               )}
             </View>
@@ -383,7 +420,7 @@ export default function Home() {
   );
 }
 
-// Estilizaçõ
+// Estilização
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -3,6 +3,7 @@ import { Alert, View } from 'react-native';
 import { Button, Text, TextInput } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// define e exporta o type apontamento
 export type Apontamento = {
   funcionarioId: number;
   funcionarioNome: string;
@@ -21,6 +22,7 @@ export default function FormularioApontamento({ funcionarioId, funcionarioNome, 
 
   // Formata a data digitada para o formato DD/MM/AAAA
   const formatarDataDigitada = (texto: string) => {
+    // remove tudo que não for numero
     const digitos = texto.replace(/\D/g, '');
     let formatado = '';
 
@@ -28,11 +30,13 @@ export default function FormularioApontamento({ funcionarioId, funcionarioNome, 
     else if (digitos.length <= 4) formatado = `${digitos.slice(0, 2)}/${digitos.slice(2)}`;
     else formatado = `${digitos.slice(0, 2)}/${digitos.slice(2, 4)}/${digitos.slice(4, 8)}`;
 
+    // atualiza a const com a data formatada
     setData(formatado);
   };
 
-  // Formata hora digitada para HH:MM
+  // Formata o texto digitada em HH:MM
   const formatarHoraDigitada = (texto: string) => {
+    // remove tudo que não for numero
     const digitos = texto.replace(/\D/g, '');
     if (digitos.length <= 2) return digitos;
     return `${digitos.slice(0, 2)}:${digitos.slice(2, 4)}`;
@@ -42,15 +46,20 @@ export default function FormularioApontamento({ funcionarioId, funcionarioNome, 
   const handleHoraInicioChange = (texto: string) => setHoraInicio(formatarHoraDigitada(texto));
   const handleHoraFimChange = (texto: string) => setHoraFim(formatarHoraDigitada(texto));
 
-  // Salva o apontamento no AsyncStorage
+  // Função para registrar um novo apontamento
   const registrarApontamento = async () => {
+    // const armazena dados do novo apontamento
     const novoApontamento = { funcionarioId, ordemId, data, horaInicio, horaFim };
 
     try {
+      // busca os apontamentos ja solvos no AsyncStorage
       const apontamentosString = await AsyncStorage.getItem('apontamentos');
+      // se ja existir apontamentos salvos, transforma em array, senao, usa um vazio
       const apontamentos = apontamentosString ? JSON.parse(apontamentosString) : [];
 
+      // Adiciona o novo apontamento ao array
       apontamentos.push(novoApontamento);
+      // salva o novo array de apontamentos no AsyncStorage ja transformado em string
       await AsyncStorage.setItem('apontamentos', JSON.stringify(apontamentos));
 
       Alert.alert('Apontamento Registrado', `Funcionário: ${funcionarioId} - ${funcionarioNome}\nOrdem: ${ordemId}\nData: ${data}\nInício: ${horaInicio}\nFim: ${horaFim}`);
@@ -61,7 +70,7 @@ export default function FormularioApontamento({ funcionarioId, funcionarioNome, 
       setHoraInicio('');
       setHoraFim('');
 
-      // Informa o componente pai para limpar as seleções
+      // informa que o apontamento foi registrado
       onApontamentoRegistrado();
     } catch (error) {
       console.error('Erro ao salvar:', error);
