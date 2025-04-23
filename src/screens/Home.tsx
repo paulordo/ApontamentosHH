@@ -76,8 +76,8 @@ const carregarOrdens = async () => {
   try {
     setCarregandoOrdens(true);
     const api = await getApi();
-    const whereBase64 = btoa('ODP_STATUS;IN;A');
-    const response = await api.get(`/api/v1/pcp/ordensproducao/${whereBase64}/0/3/0`);
+    const whereBase64 = btoa('ODP_STATUS;IN;A,F,C');
+    const response = await api.get(`/api/v1/pcp/ordensproducao/${whereBase64}/0/5/0`);
 
     setOrdens(response.data);
     setCarregandoOrdens(false);
@@ -117,7 +117,7 @@ useEffect(() => {
 // Carregar ORDENS quando o componente for montado
 useEffect(() => {
   carregarOrdens();
-  intervaloOrdensRef.current = setInterval(carregarOrdens, 4000);
+  intervaloOrdensRef.current = setInterval(carregarOrdens, 2000);
 
   return () => {
     if (intervaloOrdensRef.current) {
@@ -142,8 +142,8 @@ useEffect(() => {
   
   // Callback para selecionar ordem
   const onSelectOrdem = (ordem: Ordem) => {
-    setOrdemSelecionada(ordem.ODP_HIERARQUIA);
-    console.log('Ordem selecionada:', ordem.ODP_HIERARQUIA);
+    setOrdemSelecionada(ordem.ODP_NRPREORDEM);
+    console.log('Ordem selecionada:', ordem.ODP_NRPREORDEM);
   };
 
   // Função para abrir os apontamentos de um funcionario

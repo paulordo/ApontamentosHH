@@ -6,13 +6,6 @@ import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 export interface Ordem {
   ODP_CODIGO: number;
   ODP_NRPREORDEM: string;
-  ODP_PRODUTO: string;
-  ODP_DATA: number;
-  ODP_USUARIO: string;
-  ODP_HIERARQUIA: string;
-  ODP_QTDPREVISTA: number;
-  ODP_QTDADICIONADA: number;
-  ODP_QTDREMOVIDA: number;
 }
 
 // Define as propriedades esperadas pelo componente
@@ -26,6 +19,42 @@ interface CardOrdensProps {
 // Componente funcional que exibe um card com a lista de ordens
 export const CardOrdens: React.FC<CardOrdensProps> = ({ ordens, carregando, ordemSelecionada, onSelectOrdem }) => {
 
+  // Se estiver carregando, exibe o loading e mensagem
+  if (carregando) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6200ee" />
+        <Text style={styles.loadingText}>Carregando ordens...</Text>
+      </View>
+    );
+  }
+
+  // Se não estiver carregando, exibe as ordens ou mensagem de vazio
+  return (
+    <View style={styles.container}>
+      <Text style={styles.titulo}>ordens</Text>
+  
+      {ordens.length > 0 ? (
+        ordens.map((ordem) => {
+          const selecionado = ordem.ODP_NRPREORDEM=== ordemSelecionada;
+          return (
+            <TouchableOpacity
+              key={ordem.ODP_CODIGO}
+              style={[styles.card, selecionado && styles.cardSelecionado]}
+              onPress={() => onSelectOrdem(ordem)}
+            >
+              <Text style={styles.texto}>OS: {ordem.ODP_NRPREORDEM}</Text>
+            </TouchableOpacity>
+          );
+        })
+      ) : (
+        <Text style={styles.semOrdens}>Nenhuma ordem disponível.</Text>
+      )}
+    </View>
+  );
+}
+
+// estilização
 const styles = StyleSheet.create({
   container: {
     borderWidth: 2,
@@ -34,8 +63,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
     borderRadius: 8,
     backgroundColor: '#f9f9f9',
-    maxWidth: 450,
-    minWidth: 400,
+    maxWidth: 460,
+    minWidth: 420,
     maxHeight: 600,
     alignSelf: 'flex-end'
   },
@@ -77,38 +106,3 @@ const styles = StyleSheet.create({
     borderColor: '#3700b3',
   },
 });
-  
-  // Se estiver carregando, exibe o loading e mensagem
-  if (carregando) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6200ee" />
-        <Text style={styles.loadingText}>Carregando ordens...</Text>
-      </View>
-    );
-  }
-
-  // Se não estiver carregando, exibe as ordens ou mensagem de vazio
-  return (
-    <View style={styles.container}>
-      <Text style={styles.titulo}>ordens</Text>
-  
-      {ordens.length > 0 ? (
-        ordens.map((ordem) => {
-          const selecionado = ordem.ODP_HIERARQUIA=== ordemSelecionada;
-          return (
-            <TouchableOpacity
-              key={ordem.ODP_CODIGO}
-              style={[styles.card, selecionado && styles.cardSelecionado]}
-              onPress={() => onSelectOrdem(ordem)}
-            >
-              <Text style={styles.texto}>OS: {ordem.ODP_HIERARQUIA}</Text>
-            </TouchableOpacity>
-          );
-        })
-      ) : (
-        <Text style={styles.semOrdens}>Nenhuma ordem disponível.</Text>
-      )}
-    </View>
-  );
-}

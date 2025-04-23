@@ -1,6 +1,5 @@
 import React from 'react';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, Image } from 'react-native';
 import { View, ScrollView, Text, StyleSheet, ActivityIndicator } from 'react-native';
 
 // Define a interface para representar pessoa da equipe
@@ -52,7 +51,10 @@ const CardFuncionario: React.FC<Props> = ({ nomeEquipe, pessoas, carregando, fun
           <TouchableOpacity onPress={() => onSelecionarFuncionario(pessoa.PEQ_CODIGO)} style={styles.cardHeader}>
             <Text style={styles.texto}>{pessoa.PES_RAZAO}</Text>
             <TouchableOpacity onPress={() => onAbrirApontamentos(pessoa.PEQ_CODIGO, pessoa.PES_RAZAO)}>
-              <Icon name='eye' size={30} color="#fff" />
+              <Image
+                source={{ uri: 'https://cdn-icons-png.flaticon.com/512/709/709612.png' }}
+                style={{ width: 30, height: 30, tintColor: 'white'}}
+              />
             </TouchableOpacity>
           </TouchableOpacity>
         </View>
@@ -75,8 +77,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
     borderRadius: 8,
     backgroundColor: '#f9f9f9',
-    maxWidth: 450,
-    minWidth: 400,
+    maxWidth: 460,
+    minWidth: 420,
     maxHeight: 600,
     alignSelf: 'flex-start',
   },
