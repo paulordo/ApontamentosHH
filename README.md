@@ -1,97 +1,109 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 📲 ApontamentosHH
 
-# Getting Started
+O **ApontamentosHH** é um aplicativo mobile desenvolvido em **React Native com TypeScript**, criado como parte de um **teste técnico profissional** e também com fins educacionais. Ele simula um sistema real de **apontamentos de ordens de produção**, integrando-se a um **webservice legado em Delphi**, com autenticação, consulta de dados e registros com armazenamento local.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+---
 
-## Step 1: Start Metro
+## 🚀 Funcionalidades
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- 🔐 Autenticação via Basic Auth com senha criptografada em MD5.
+- 📡 Consumo de APIs REST para:
+  - Usuários
+  - Equipes de manutenção
+  - Ordens de produção
+- ⏱️ Registro de apontamentos com data e hora de início e fim.
+- 🖼️ Feedback visual indicando seleção de itens (ex: cor do usuário alterada após seleção).
+- 📝 O backend utiliza Microsoft Timestamp (Double) para datas, e embora o projeto tenha suporte a conversão com Moment.js, as datas do servidor não foram utilizadas diretamente na versão final.
+- ⚙️ Arquitetura organizada com componentização da interface e lógica.
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## 🧪 Tecnologias Utilizadas
 
-```sh
-# Using npm
-npm start
+- [React Native](https://reactnative.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [react-native-paper](https://callstack.github.io/react-native-paper/) (UI)
+- [Moment.js](https://momentjs.com/) (conversão de datas)
+- [Yarn](https://yarnpkg.com/) (gerenciador de pacotes)
+- Webservice legado em **Delphi** (backend da API)
 
-# OR using Yarn
-yarn start
+## 📸 Screenshots do App
+- Tela de Login
+  - Permite que o usuário se autentique via Basic Auth com senha criptografada em MD5.
+  <img src="https://github.com/user-attachments/assets/6f44d1e7-f7d4-4ad8-935a-317e0ab30ea6" width="500"/>
+
+- Tela Home (Após Login)
+  - Exibe as principais ações do app, como seleção de usuário, ordem e formulário para registro de apontamentos.
+  <img src="https://github.com/user-attachments/assets/fffada8e-608b-4b37-a118-7228c6306a42" width="500"/>
+
+- Visualização e edição de apontamentos registrados
+  - Interface para visualização e edição de um apontamento realizado vinculado ao colaborador específico.
+  <img src="https://github.com/user-attachments/assets/a552eb09-ea9f-4d3b-bff4-3a0a146bfe81" width="500"/>
+
+---
+
+## 📂 Estrutura do Projeto (Resumo)
+
+```bash
+ApontamentosHH/
+├── src/
+│   ├── components/          # Componentes reutilizáveis
+│   ├── screens/             # Telas (Login, Home, etc)
+│   ├── services/            # Integração com API
+│   ├── utils/               # Funções auxiliares (ex: momentsutils.ts)
+│   └── App.tsx              # Ponto de entrada
+├── assets/                  # Imagens e fontes
+├── README.md
+└── package.json
 ```
+---
 
-## Step 2: Build and run your app
+## 🔑 Autenticação
+O app utiliza Basic Auth, enviando o login e a senha (criptografada em MD5) no cabeçalho da requisição.
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+- As credenciais são enviadas no cabeçalho HTTP como Authorization: Basic <credenciaisBase64>.
+- A senha do usuário é criptografada com MD5 antes de ser enviada.
+- O servidor valida as credenciais e responde com os dados ou erro 401 Unauthorized.
 
-### Android
+---
 
-```sh
-# Using npm
-npm run android
+## 📦 Instalação e Execução
 
-# OR using Yarn
-yarn android
+```bash
+# Clone o repositório
+git clone https://github.com/paulordo/ApontamentosHH.git
+cd ApontamentosHH
+
+# Instale as dependências
+yarn install
+
+# Execute o app
+npx react-native run-android
+# ou
+npx react-native run-ios
 ```
+---
 
-### iOS
+## 📌 Observações
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+- Os dados de data/hora que vêm do servidor estão em formato Microsoft Timestamp (Double) e são convertidos utilizando Moment.js.
+- A comunicação com o backend exige conexão com a API fornecida pelo sistema legado.
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+## 🎯 Objetivo do Projeto
+Este projeto foi desenvolvido para:
 
-```sh
-bundle install
-```
+- Atender a um teste técnico de uma empresa, demonstrando conhecimento prático em React Native.
+- Servir como projeto de aprendizado, focando em integração com sistemas legados e boas práticas de desenvolvimento mobile.
+- Simular um sistema real de apontamentos utilizado em ambientes industriais.
 
-Then, and every time you update your native dependencies, run:
+## 🧠 Aprendizados
+- Consumo de APIs com autenticação personalizada.
+- Conversão de dados legados.
+- Estruturação de apps mobile em React Native.
+- Componentização e organização de código em TypeScript.
+- Execução local de app mobile usando Android Emulator.
+- Aprendizado prático com prazo e requisitos reais de um teste técnico.
 
-```sh
-bundle exec pod install
-```
+## 📬 Contato
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- Se quiser saber mais sobre o projeto ou entrar em contato comigo:
+  - 📧 pauloricardo10082003@gmail.com
+  - 💼 https://www.linkedin.com/in/paulo-oliveira-5a1913172/
