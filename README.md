@@ -47,8 +47,7 @@ ApontamentosHH/
 ├── src/
 │   ├── components/          # Componentes reutilizáveis
 │   ├── screens/             # Telas (Login, Home, etc)
-│   ├── services/            # Integração com API
-│   ├── utils/               # Funções auxiliares (ex: momentsutils.ts)
+│   ├── services/            # Integração com API e funções auxiliares
 │   └── App.tsx              # Ponto de entrada
 ├── assets/                  # Imagens e fontes
 ├── README.md
